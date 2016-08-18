@@ -2,11 +2,10 @@ cmake_minimum_required(VERSION 2.8.3)
 project(conman_ros)
 
 find_package(catkin REQUIRED COMPONENTS 
-  controller_manager_msgs
-  cmake_modules)
+  controller_manager_msgs)
 
 find_package(OROCOS-RTT REQUIRED)
-find_package(Eigen REQUIRED)
+find_package(Eigen3 REQUIRED)
 
 include(${OROCOS-RTT_USE_FILE_PATH}/UseOROCOS-RTT.cmake )
 

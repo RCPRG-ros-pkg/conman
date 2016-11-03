@@ -25,6 +25,8 @@ find_package(catkin REQUIRED)
 
 find_package(OROCOS-RTT REQUIRED)
 
+find_package(orocos-ocl REQUIRED)
+
 #find_package(conman_hook)
 
 include(${OROCOS-RTT_USE_FILE_PATH}/UseOROCOS-RTT.cmake )
@@ -35,7 +37,14 @@ set(CMAKE_BUILD_TYPE Debug)
 ## Build ##
 ###########
 
-include_directories(include ${catkin_INCLUDE_DIRS} ${BOOST_INCLUDE_DIRS}, ${USE_OROCOS_INCLUDE_DIRS})
+include_directories(
+  include
+  ${catkin_INCLUDE_DIRS}
+  ${BOOST_INCLUDE_DIRS}
+  ${USE_OROCOS_INCLUDE_DIRS}
+  ${orocos-ocl_INCLUDE_DIRS}
+)
+
 orocos_use_package( ocl-taskbrowser )
 orocos_use_package( ocl-deployment )
 orocos_use_package( ocl-logging )

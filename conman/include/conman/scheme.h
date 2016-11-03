@@ -132,7 +132,28 @@ namespace conman
         const std::string &group_name) const;
 
     //\}
+
+    ///////////////////////////////////////////////////////////////////////////
+    /** \name Scheme Graph Configuration Management
+     *
+     * Graph Configuration can be treated like "transfer function of behaviour"
+     * so behaviours can be switched using graph configurations switch.
+     *
+     * The operations are suited for real-time behaviour switch.
+     */
+    //\{
     
+    //! Add a new graph configuration. It is a configuration operation.
+    bool addGraphConfiguration(
+        int id,
+        const std::vector<std::string> &disable_block_names,
+        const std::vector<std::string> &enable_block_names);
+
+    //! Switch to defined graph configuration. It is a real-time operation.
+    bool switchToConfiguration(int id);
+
+    //\}
+
     ///////////////////////////////////////////////////////////////////////////
     /** \name Block conflict computation
      *
@@ -518,6 +539,10 @@ namespace conman
       smooth_exec_duration_;
 
     size_t n_running_blocks_;
+
+    //! Graph configurations
+    std::vector<std::vector<std::string> > graph_enabled_blocks_;
+    std::vector<std::vector<std::string> > graph_disabled_blocks_;
   };
 
   template <class T>

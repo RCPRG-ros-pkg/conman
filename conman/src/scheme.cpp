@@ -35,7 +35,7 @@ Scheme::Scheme(std::string name)
     .doc("Check if a conman block is in this scheme by name.");
   this->addOperation("getBlocks", (std::vector<std::string> (Scheme::*)(void) const)&Scheme::getBlocks, this, RTT::OwnThread)
     .doc("Get the list of all blocks.");
-  this->addOperation("addBlock", (bool (Scheme::*)(const std::string&))&Scheme::addBlock, this, RTT::OwnThread)
+  this->addOperation("addBlock", (bool (Scheme::*)(const std::string&))&Scheme::addBlock, this, RTT::ClientThread)
     .doc("Add a conman block into this scheme.");
   this->addOperation("removeBlock", (bool (Scheme::*)(const std::string&))&Scheme::removeBlock, this, RTT::OwnThread)
     .doc("Remove a conman block from this scheme.");
@@ -65,7 +65,7 @@ Scheme::Scheme(std::string name)
     .doc("Switch to a configuration specified through addGraphConfiguration.");
 
   // Latch management
-  this->addOperation("latchConnections", (bool (Scheme::*)(const std::string&, const std::string&, const bool))&Scheme::latchConnections, this, RTT::OwnThread)
+  this->addOperation("latchConnections", (bool (Scheme::*)(const std::string&, const std::string&, const bool))&Scheme::latchConnections, this, RTT::ClientThread)
     .doc("Latch all the connections between two components.");
   this->addOperation("latchInputs", (bool (Scheme::*)(const std::string&, const bool))&Scheme::latchInputs, this, RTT::OwnThread)
     .doc("Latch all the inputs to a given component.");

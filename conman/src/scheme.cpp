@@ -31,7 +31,7 @@ Scheme::Scheme(std::string name)
  : RTT::TaskContext(name), scheme_name_("")
 {
   // Modifying blocks in the scheme
-  this->addOperation("hasBlock", &Scheme::hasBlock, this, RTT::OwnThread)
+  this->addOperation("hasBlock", &Scheme::hasBlock, this, RTT::ClientThread)
     .doc("Check if a conman block is in this scheme by name.");
   this->addOperation("getBlocks", (std::vector<std::string> (Scheme::*)(void) const)&Scheme::getBlocks, this, RTT::OwnThread)
     .doc("Get the list of all blocks.");

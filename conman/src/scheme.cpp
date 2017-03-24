@@ -67,9 +67,9 @@ Scheme::Scheme(std::string name)
   // Latch management
   this->addOperation("latchConnections", (bool (Scheme::*)(const std::string&, const std::string&, const bool))&Scheme::latchConnections, this, RTT::ClientThread)
     .doc("Latch all the connections between two components.");
-  this->addOperation("latchInputs", (bool (Scheme::*)(const std::string&, const bool))&Scheme::latchInputs, this, RTT::OwnThread)
+  this->addOperation("latchInputs", (bool (Scheme::*)(const std::string&, const bool))&Scheme::latchInputs, this, RTT::ClientThread)
     .doc("Latch all the inputs to a given component.");
-  this->addOperation("latchOutputs", (bool (Scheme::*)(const std::string&, const bool))&Scheme::latchOutputs, this, RTT::OwnThread)
+  this->addOperation("latchOutputs", (bool (Scheme::*)(const std::string&, const bool))&Scheme::latchOutputs, this, RTT::ClientThread)
     .doc("Latch all the outputs to a given component.");
 
   // Add properties
@@ -1350,6 +1350,10 @@ bool Scheme::regenerateModel()
         RTT::TaskContext
           *source_block = source_port->getInterface()->getOwner(),
           *sink_block = sink_port->getInterface()->getOwner();
+
+        if (source_block == sink_block) {
+            continue;
+        }
 
         // Make sure both blocks are in the DFG and ESG
         if( flow_vertex_map_.find(source_block) == flow_vertex_map_.end() ||

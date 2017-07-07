@@ -342,6 +342,7 @@ namespace conman
     bool enableBlock(RTT::TaskContext *block, const bool force);
     //! Enable a single Conman block (or group) by name
     bool enableBlock(const std::string &block_name, const bool force);
+    bool enableBlockUnsafe(RTT::TaskContext *block, const bool force);
     /** \brief Enable multiple Conman blocks (or groups) by name simultaneously
      * 
      * This will enable the blocks in the given vector according to the
@@ -522,6 +523,18 @@ namespace conman
     //! Print out the current execution ordering
     void printExecutionOrdering() const;
 
+    bool switchBlocksFast(
+        const std::vector<RTT::TaskContext*> &disable_blocks,
+        const std::vector<RTT::TaskContext*> &enable_blocks,
+        const bool strict,
+        const bool force);
+
+    bool enableOrderedBlocksFast(
+        const std::vector<RTT::TaskContext*> &ordered,
+        const bool strict,
+        const bool force);
+
+
     //! Time state
     //TODO: use nsecs instead?
     RTT::Seconds
@@ -541,8 +554,8 @@ namespace conman
     size_t n_running_blocks_;
 
     //! Graph configurations
-    std::vector<std::vector<std::string> > graph_enabled_blocks_;
-    std::vector<std::vector<std::string> > graph_disabled_blocks_;
+    std::vector<std::vector<RTT::TaskContext*> > graph_enabled_blocks_;
+    std::vector<std::vector<RTT::TaskContext*> > graph_disabled_blocks_;
   };
 
   template <class T>

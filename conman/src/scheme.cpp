@@ -1604,6 +1604,34 @@ bool Scheme::enableBlock(RTT::TaskContext *block, const bool force)
   return true;
 }
 
+bool Scheme::enableBlockUnsafe(RTT::TaskContext *block, const bool force)
+{
+  using namespace conman::graph;
+
+  // Check if the block is already enabled
+  if(block->getTaskState() == RTT::TaskContext::Running) {
+    // If it's already running, then we're going to assume for now that the
+    // user isn't doing anything dirty.
+    // TODO: Keep track of whether or not a block has been properly enabled.
+//    RTT::log(RTT::Debug) << "The block \"" << block_name <<"\" is already enabled." << RTT::endlog();
+    return true;
+  }
+
+  // Initialize the hook
+// TODO
+//  block_vertex->hook->init(last_update_time_);
+
+  // Try to start the block
+  if(!block->start()) {
+    RTT::Logger::In in("Scheme::enableBlock");
+    RTT::log(RTT::Error) << "Could not enable block \""<< block->getName() << "\""
+      " because it could not be start()ed." << RTT::endlog();
+    return false;
+  }
+
+  return true;
+}
+
 bool Scheme::disableBlock(const std::string &block_name)
 {
   // First check if this block is a group
@@ -1774,6 +1802,46 @@ bool Scheme::enableBlocks(
   return success;
 }
 
+bool Scheme::enableOrderedBlocksFast(
+    const std::vector<RTT::TaskContext*> &ordered,
+    const bool strict,
+    const bool force)
+{
+  using namespace conman::graph;
+
+  // Enable the blocks
+  bool success = true;
+
+    // Vector contains block names only
+
+    // First make sure all the blocks can be enabled before actually trying to enable them
+//    if(!force) {
+//      if(!this->enableable(unordered)) {
+//        RTT::log(RTT::Error) << "Could not enable block because it has conflicts which will not be force-disabled." << RTT::endlog();
+//        return false;
+//      }
+//    }
+
+    //Goes through all blocks in execution order, if that block is also
+    //in list of blocks to enable, it is put in the new ordered vector
+    for(int i = 0; i < ordered.size(); ++i)
+    {
+//      const std::string &block_name = flow_graph_[*it]->block->getName();
+
+//      if(std::find(unordered.begin(), unordered.end(), block_name) != unordered.end())
+//      {
+        // Try to start the block
+        success = this->enableBlockUnsafe(ordered[i],force) && success;
+
+        // Break on failure if strict
+        if(!success && strict) { return false; }
+//      }
+    }
+
+
+  return success;
+}
+
 bool Scheme::disableBlocks(const bool strict)
 {
   bool success = true;
@@ -1840,6 +1908,8 @@ bool Scheme::addGraphConfiguration(
     const std::vector<std::string> &disable_block_names,
     const std::vector<std::string> &enable_block_names)
 {
+  using namespace conman::graph;
+
   RTT::Logger::In in("Scheme::addGraphConfiguration");
   if (isRunning())
   {
@@ -1847,13 +1917,18 @@ bool Scheme::addGraphConfiguration(
     return false;
   }
 
+  std::vector<RTT::TaskContext*> disable_blocks;
+  std::vector<RTT::TaskContext*> enable_blocks;
+
   for (int i = 0; i < disable_block_names.size(); ++i)
   {
-    if (blocks_.find(disable_block_names[i]) == blocks_.end())
+    RTT::TaskContext* block = this->getPeer(disable_block_names[i]);
+    if (!block)
     {
       RTT::log(RTT::Error) << "Unknown block: " << disable_block_names[i] << RTT::endlog();
       return false;
     }
+    disable_blocks.push_back(block);
   }
 
   for (int i = 0; i < enable_block_names.size(); ++i)
@@ -1865,13 +1940,35 @@ bool Scheme::addGraphConfiguration(
     }
   }
 
+  //Goes through all blocks in execution order, if that block is also
+  //in list of blocks to enable, it is put in the new ordered vector
+  for(ExecutionOrdering::const_iterator it = exec_ordering_.begin();
+      it != exec_ordering_.end();
+      ++it)
+  {
+    const std::string &block_name = flow_graph_[*it]->block->getName();
+
+    for (int i = 0; i < enable_block_names.size(); ++i)
+    {
+      if (block_name == enable_block_names[i]) {
+        RTT::TaskContext* block = this->getPeer(enable_block_names[i]);
+        if (!block)
+        {
+          RTT::log(RTT::Error) << "Unknown block: " << enable_block_names[i] << RTT::endlog();
+          return false;
+        }
+        enable_blocks.push_back(block);
+      }
+    }
+  }
+
   if (id != graph_enabled_blocks_.size()) {
     RTT::log(RTT::Error) << "id should be equal to the next index: " << graph_enabled_blocks_.size() << RTT::endlog();
     return false;
   }
 
-  graph_enabled_blocks_.push_back( enable_block_names );
-  graph_disabled_blocks_.push_back( disable_block_names );
+  graph_enabled_blocks_.push_back( enable_blocks );
+  graph_disabled_blocks_.push_back( disable_blocks );
 
   return true;
 }
@@ -1883,7 +1980,7 @@ bool Scheme::switchToConfiguration(int id)
     return false;
   }
 
-  return switchBlocks(graph_disabled_blocks_[id], graph_enabled_blocks_[id], true, false);
+  return switchBlocksFast(graph_disabled_blocks_[id], graph_enabled_blocks_[id], true, false);
 }
 
 
@@ -1913,6 +2010,31 @@ bool Scheme::switchBlocks(
   // First disable blocks, so that "force" can be used appropriately when
   // enabling blocks.
   success = success && this->enableBlocks(enable_block_names, strict, force);
+
+  return success;
+}
+
+bool Scheme::switchBlocksFast(
+    const std::vector<RTT::TaskContext*> &disable_blocks,
+    const std::vector<RTT::TaskContext*> &enable_blocks,
+    const bool strict,
+    const bool force)
+{
+
+  bool success = true;
+
+  for(int i = 0; i < disable_blocks.size(); ++i)
+  {
+      // Try to disable the block
+      success &= this->disableBlock(disable_blocks[i]);
+
+      // Break on failure if strict
+      if(!success && strict) { return false; }
+  }
+
+  // First disable blocks, so that "force" can be used appropriately when
+  // enabling blocks.
+  success = success && this->enableOrderedBlocksFast(enable_blocks, strict, force);
 
   return success;
 }

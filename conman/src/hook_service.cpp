@@ -226,6 +226,7 @@ bool HookService::init(const RTT::Seconds time)
 
 bool HookService::update(const RTT::Seconds time) 
 {
+/*
   // Handle initialization explicitly or if time resets (like in simulation)
   if(init_ || time <= last_exec_time_) {
     last_exec_time_ = time - desired_min_exec_period_;
@@ -258,10 +259,10 @@ bool HookService::update(const RTT::Seconds time)
 
   // Track how long it takes to execute the component's update hook
   RTT::nsecs exec_start = RTT::os::TimeService::Instance()->getNSecs();
-
+*/
   // Execute the component's update hook
   bool success = this->getOwner()->update();
-
+/*
   // Compute statistics describing how long it actually took to update
   last_exec_duration_ = 
     RTT::nsecs_to_Seconds(RTT::os::TimeService::Instance()->getNSecs(exec_start));
@@ -270,12 +271,12 @@ bool HookService::update(const RTT::Seconds time)
   max_exec_duration_ = std::max(max_exec_duration_,last_exec_duration_);
 
   const double &a = exec_duration_smoothing_factor_;
-  var_exec_duration_ = (1.0-a)*(var_exec_duration_ + a*pow(last_exec_duration_ - smooth_exec_duration_,2));
-  var_exec_period_ = (1.0-a)*(var_exec_period_ + a*pow(last_exec_period_ - smooth_exec_period_,2));
+  var_exec_duration_ = 0;//(1.0-a)*(var_exec_duration_ + a*pow(last_exec_duration_ - smooth_exec_duration_,2));
+  var_exec_period_ = 0;//(1.0-a)*(var_exec_period_ + a*pow(last_exec_period_ - smooth_exec_period_,2));
 
-  smooth_exec_duration_ = a*smooth_exec_duration_ + (1.0-a)*last_exec_duration_;
-  smooth_exec_period_ = a*smooth_exec_period_ + (1.0-a)*last_exec_period_;
-
+  smooth_exec_duration_ = 0;//a*smooth_exec_duration_ + (1.0-a)*last_exec_duration_;
+  smooth_exec_period_ = 0;//a*smooth_exec_period_ + (1.0-a)*last_exec_period_;
+*/
 
   return success;
 }

@@ -79,6 +79,9 @@ Scheme::Scheme(std::string name)
   this->addOperation("executable", &Scheme::executable, this, RTT::OwnThread)
     .doc("Returns true if the graph can be executed with the current latches.");
 
+  this->addOperation("getExecutionOrder", &Scheme::getExecutionOrder, this, RTT::ClientThread)
+    .doc("Returns the execution order of components.");
+
   // Block runtime management
   this->addOperation("enableBlock", (bool (Scheme::*)(const std::string&, const bool))&Scheme::enableBlock, this, RTT::OwnThread)
     .doc("Enable a block in this scheme.")

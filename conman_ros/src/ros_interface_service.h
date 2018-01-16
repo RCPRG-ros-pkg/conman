@@ -29,6 +29,7 @@
 #include <controller_manager_msgs/SwitchController.h>
 #include <controller_manager_msgs/UnloadController.h>
 
+#include <actionlib/server/action_server.h>
 #include <rtt_actionlib/rtt_actionlib.h>
 #include <rtt_actionlib/rtt_action_server.h>
 

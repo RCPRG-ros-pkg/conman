@@ -3,20 +3,17 @@
  * this license, please see LICENSE.txt at the root of this repository.
  */
 
-#include <rtt/plugin/ServicePlugin.hpp>
-
-#include <rtt/deployment/ComponentLoader.hpp>
-
 #include "ros_interface_service.h"
-
-#include <rtt_roscomm/rtt_rostopic.h>
 
 #include <boost/algorithm/string.hpp>
 #include <boost/format.hpp>
-#include <conman/hook.h>
 #include <iomanip>
-
 #include <typeinfo>
+
+#include <conman/hook.h>
+#include <rtt/plugin/ServicePlugin.hpp>
+#include <rtt/deployment/ComponentLoader.hpp>
+#include <rtt_roscomm/rostopic.h>
 
 using namespace conman_ros;
 
@@ -246,7 +243,7 @@ void ROSInterfaceService::set_blocks_goal_cb(actionlib::ServerGoalHandle<conman_
   // The query is valid, accept the goal
   gh.setAccepted();
   bool success = false;
-  
+
   if(goal->diff) {
     success = scheme->switchBlocks(goal->disable, goal->enable, goal->strict, goal->force);
   } else {

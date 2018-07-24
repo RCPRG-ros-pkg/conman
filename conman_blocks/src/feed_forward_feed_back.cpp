@@ -3,7 +3,7 @@
 
 #include <conman/hook.h>
 #include <rtt_rosparam/rosparam.h>
-#include <rtt_roscomm/rtt_rostopic.h>
+#include <rtt_roscomm/rostopic.h>
 
 #include "feed_forward_feed_back.h"
 
@@ -24,7 +24,7 @@ FeedForwardFeedBack::FeedForwardFeedBack(std::string const& name) :
   ,disable_duration_(0.1)
 {
   // Declare properties
-  this->addProperty("dim",dim_)
+  this->addProperty("dim", dim_)
     .doc("The dimension of the .");
   this->addProperty("require_heartbeat", require_heartbeat_)
     .doc("If true, feedback effort will be disabled if there is no heartbeat heartbeat.");
@@ -110,15 +110,15 @@ void FeedForwardFeedBack::updateHook()
   }
 
   // Listen for a pulse
-  if(heartbeats_in_.readNewest(heartbeat_) == RTT::NewData || heartbeats_ros_in_.readNewest(heartbeat_ros_) == RTT::NewData) 
+  if(heartbeats_in_.readNewest(heartbeat_) == RTT::NewData || heartbeats_ros_in_.readNewest(heartbeat_ros_) == RTT::NewData)
   {
     last_heartbeat_time_ = rtt_rosclock::rtt_now();
 
     if(heartbeat_warning_) {
       heartbeat_warning_ = false;
       heartbeat_start_time_ = last_heartbeat_time_;
-    }  
-  } 
+    }
+  }
 
   heartbeat_period_ = (rtt_rosclock::rtt_now() - last_heartbeat_time_).toSec();
   heartbeat_lifetime_ = (rtt_rosclock::rtt_now() - heartbeat_start_time_).toSec();
@@ -126,7 +126,7 @@ void FeedForwardFeedBack::updateHook()
 
   if(enable_feedback_) {
     // Check heartbeats
-    if(!require_heartbeat_ || heartbeat_period_ < heartbeat_max_period_) 
+    if(!require_heartbeat_ || heartbeat_period_ < heartbeat_max_period_)
     {
       // Get the feedback
       if(feedback_in_.readNewest( feedback_effort_, false) == RTT::NewData) {
@@ -144,7 +144,7 @@ void FeedForwardFeedBack::updateHook()
           // TODO:::::::::::::::::
           // compute joint-space inertia matrix and its inverse
           // apply commanded torque and compute acceleration a = Hinv*f
-          // compute commanded jerk j = (a1 - a0) / dt 
+          // compute commanded jerk j = (a1 - a0) / dt
   /*
    *        if(interpolate_effort) {
    *          joint_effort = joint_effort_last + interpolation_scale * (joint_effort_raw - joint_effort_last);
@@ -163,7 +163,7 @@ void FeedForwardFeedBack::updateHook()
       }
     } else {
       heartbeat_lifetime_ = 0.0;
-      if(!heartbeat_warning_) { 
+      if(!heartbeat_warning_) {
         RTT::log(RTT::Warning) << "Heartbeats are not being sent often enough (should be < " << heartbeat_max_period_ << " s). Disabling feedback effort." << addend.size();
         heartbeat_warning_ = true;
       }

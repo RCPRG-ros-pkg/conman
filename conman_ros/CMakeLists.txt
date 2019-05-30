@@ -44,7 +44,7 @@ target_link_libraries(
   ${USE_OROCOS_LIBRARIES} 
   ${catkin_LIBRARIES})
 
-add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS})
+#add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS})
 
 orocos_generate_package(
   DEPENDS ${PROJECT_NAME}
